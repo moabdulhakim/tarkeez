@@ -91,8 +91,23 @@
 
                         <ComboBox fx:id="audioTrackSelector" maxWidth="1.7976931348623157E308" promptText="Select Ambient Sound" styleClass="audio-combo" />
 
-                        <HBox alignment="CENTER" prefHeight="30.0" spacing="2.0">
+                        <HBox fx:id="waveformContainer" alignment="CENTER" prefHeight="30.0" spacing="2.0">
                             <children>
+                                <Region prefHeight="10.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="20.0" prefWidth="4.0" styleClass="waveform-bar-active" />
+                                <Region prefHeight="30.0" prefWidth="4.0" styleClass="waveform-bar-active" />
+                                <Region prefHeight="15.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="25.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="10.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="20.0" prefWidth="4.0" styleClass="waveform-bar-active" />
+                                <Region prefHeight="30.0" prefWidth="4.0" styleClass="waveform-bar-active" />
+                                <Region prefHeight="15.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="25.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="10.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="20.0" prefWidth="4.0" styleClass="waveform-bar-active" />
+                                <Region prefHeight="30.0" prefWidth="4.0" styleClass="waveform-bar-active" />
+                                <Region prefHeight="15.0" prefWidth="4.0" styleClass="waveform-bar" />
+                                <Region prefHeight="25.0" prefWidth="4.0" styleClass="waveform-bar" />
                                 <Region prefHeight="10.0" prefWidth="4.0" styleClass="waveform-bar" />
                                 <Region prefHeight="20.0" prefWidth="4.0" styleClass="waveform-bar-active" />
                                 <Region prefHeight="30.0" prefWidth="4.0" styleClass="waveform-bar-active" />
@@ -106,10 +121,10 @@
 
                         <HBox alignment="CENTER" spacing="15.0">
                             <children>
-                                <Button styleClass="media-btn-play" text="▶" />
+                                <Button fx:id="playButton" styleClass="media-btn-play" text="▶" />
                             </children>
                         </HBox>
-                        <Slider value="50.0" />
+                        <Slider fx:id="audioVolumeSlider" value="50" majorTickUnit="5" />
                     </children>
                 </VBox>
 

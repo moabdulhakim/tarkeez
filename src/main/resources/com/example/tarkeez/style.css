@@ -18,6 +18,25 @@
     -border-color: #2a2e40;
 }
 
+.slider .track {
+    -fx-background-color: -element-bg;
+    -fx-background-radius: 5px;
+    -fx-pref-height: 6px;
+}
+
+.slider .thumb {
+    -fx-background-color: -accent-blue;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
+    -fx-cursor: hand;
+}
+
+.slider .thumb:hover {
+    /* إضافة ظل خفيف عند مرور الماوس */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 168, 255, 0.5), 8, 0, 0, 0);
+}
+
 /* =========================================
    2. TYPOGRAPHY & TOP BAR
    ========================================= */
@@ -88,41 +107,41 @@
 }
 
 /* تنسيق القوائم المنسدلة (ComboBoxes) داخل الـ HTMLEditor */
-.html-editor .combo-box {
+/*.html-editor*/ .combo-box {
     -fx-background-color: -element-bg;
     -fx-border-color: -border-color;
     -fx-border-radius: 4px;
     -fx-background-radius: 4px;
     -fx-cursor: hand;
 }
-.html-editor .combo-box:hover {
+/*.html-editor*/ .combo-box:hover {
     -fx-background-color: -element-hover;
 }
-.html-editor .combo-box .list-cell {
+/*.html-editor*/ .combo-box .list-cell {
     -fx-text-fill: -text-main;
     -fx-background-color: transparent;
 }
-.html-editor .combo-box .arrow {
+/*.html-editor*/ .combo-box .arrow {
     -fx-background-color: -text-muted;
 }
-.html-editor .combo-box:hover .arrow {
+/*.html-editor*/ .combo-box:hover .arrow {
     -fx-background-color: -text-main;
 }
-.html-editor .combo-box .arrow-button {
+/*.html-editor*/ .combo-box .arrow-button {
     -fx-background-color: transparent;
 }
-.html-editor .combo-box-popup .list-view {
+/*.html-editor*/ .combo-box-popup .list-view {
     -fx-background-color: -base-color;
     -fx-border-color: -border-color;
     -fx-border-width: 1px;
 }
-.html-editor .combo-box-popup .list-cell {
+/*.html-editor*/ .combo-box-popup .list-cell {
     -fx-text-fill: -text-main;
     -fx-background-color: transparent;
     -fx-padding: 5 10 5 10;
 }
-.html-editor .combo-box-popup .list-cell:filled:hover,
-.html-editor .combo-box-popup .list-cell:filled:selected {
+/*.html-editor*/ .combo-box-popup .list-cell:filled:hover,
+/*.html-editor*/ .combo-box-popup .list-cell:filled:selected {
     -fx-background-color: -accent-blue;
     -fx-text-fill: white;
 }
@@ -254,7 +273,7 @@
     -fx-background-radius: 2px;
 }
 .waveform-bar-active {
-    -fx-background-color: -accent-blue;
+ /* -fx-background-color: -accent-blue; */
     -fx-background-radius: 2px;
 }
 
