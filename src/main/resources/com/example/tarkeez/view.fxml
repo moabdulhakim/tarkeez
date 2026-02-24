@@ -41,9 +41,11 @@
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="toolbar">
                     <children>
-                        <Button styleClass="toolbar-btn" text="+ New" />
-                        <Button styleClass="toolbar-btn" text="💾 Save" />
-                        <Button styleClass="toolbar-btn" text="💾 Save As" />
+                        <Button fx:id="newBtn" styleClass="toolbar-btn" text="New" />
+                        <Button fx:id="loadBtn" styleClass="toolbar-btn" text="Load" />
+                        <Button fx:id="saveBtn" styleClass="toolbar-btn" text="Save" />
+                        <Button fx:id="saveAsBtn" styleClass="toolbar-btn" text="Save As" />
+<!--                        <Button fx:id="exportBtn" styleClass="toolbar-btn" text="Export to PDF" />-->
                     </children>
                     <padding>
                         <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />

@@ -16,14 +16,36 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Entities;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EditorController {
     private Timer timer;
     private AudioPlayer audioPlayer;
+
+    private java.io.File currentFile = null;
+
+    @FXML
+    private Button newBtn;
+
+    @FXML
+    private Button loadBtn;
+
+    @FXML
+    private Button saveBtn;
+
+    @FXML
+    private Button saveAsBtn;
 
     @FXML
     private HTMLEditor htmlEditor;
@@ -67,6 +89,22 @@ public class EditorController {
     public void initialize(){
         themeToggleBtn.setOnAction(this::toggleTheme);
 
+        newBtn.setOnAction(e->{
+            handleNew();
+        });
+
+        loadBtn.setOnAction(e->{
+            handleLoadFile();
+        });
+
+        saveBtn.setOnAction(e->{
+            handleSave();
+        });
+
+        saveAsBtn.setOnAction(e->{
+            handleSaveAs();
+        });
+
         timer = new Timer(timerLabel, startBtn, timerProgressCircle, timerCard, sessionLabel);
         startBtn.setOnAction(event-> timer.startPause());
 
@@ -77,6 +115,117 @@ public class EditorController {
         playButton.setOnAction(this::handleAudioPlayPause);
         audioVolumeSlider.valueProperty().addListener(this::handleVolumeChange);
     }
+
+    private void handleNew(){
+        String innerHtmlDark = "<html><body style='background-color: #1e2233; color: #f0f0f0;'><p>Start Writing Your Thoughts...</p></body></html>";
+        String innerHtmlLight = "<html><body><p>Start Writing Your Thoughts...</p></body></html>";
+
+        boolean isLightMode = themeToggleBtn.isSelected();
+
+        htmlEditor.setHtmlText(isLightMode? innerHtmlLight:innerHtmlDark);
+        currentFile = null;
+    }
+
+    private void handleLoadFile(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Note");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html"));
+
+        java.io.File file = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
+
+        if(file != null){
+            try(java.util.Scanner scanner = new java.util.Scanner(file)){
+                StringBuilder content = new StringBuilder();
+                while(scanner.hasNextLine()){
+                    content.append(scanner.nextLine()).append('\n');
+                }
+                htmlEditor.setHtmlText(content.toString());
+                currentFile = file;
+            }catch(java.io.FileNotFoundException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void saveToFile(java.io.File file){
+        try(java.io.PrintWriter writer = new java.io.PrintWriter(file) ){
+            writer.println(htmlEditor.getHtmlText());
+            currentFile = file;
+            IO.println("Saved to: " + file.getAbsolutePath());
+        }catch (java.io.IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleSave(){
+        if(currentFile == null){
+            handleSaveAs();
+        }else{
+            saveToFile(currentFile);
+        }
+    }
+
+    private void handleSaveAs(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Note");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html"));
+
+        fileChooser.setInitialFileName("Untitled.html");
+
+        java.io.File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
+
+        if(file != null){
+            saveToFile(file);
+        }
+    }
+
+    /*
+    private void handleExport(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export as PDF");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf"));
+
+        fileChooser.setInitialFileName("Untitled.pdf");
+
+        java.io.File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
+
+        // - AI GENERATED ----------------------------------------
+        if (file != null) {
+            if (!file.getName().toLowerCase().endsWith(".pdf")) {
+                file = new File(file.getAbsolutePath() + ".pdf");
+            }
+
+            try {
+                String htmlContent = htmlEditor.getHtmlText();
+
+                Document document = Jsoup.parse(htmlContent);
+                document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
+                document.outputSettings().escapeMode(Entities.EscapeMode.xhtml);
+                document.outputSettings().charset("UTF-8"); // دعم الحروف الخاصة
+
+                document.select("[contenteditable]").removeAttr("contenteditable");
+
+                String xhtml = document.html();
+
+                try (OutputStream os = new FileOutputStream(file)) {
+                    ITextRenderer renderer = new ITextRenderer();
+
+                    renderer.setDocumentFromString(xhtml);
+                    renderer.layout();
+                    renderer.createPDF(os);
+
+                    os.flush();
+                    System.out.println("PDF exported successfully to: " + file.getAbsolutePath());
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error exporting to PDF:");
+                e.printStackTrace(); // لو حصل أي مشكلة هتظهر هنا بدل ما يبوظ في صمت
+            }
+        }
+        // ---------------------------------------------------------
+    }
+     */
 
     private void handleSelectAudio(ObservableValue<?extends  String> obs, String oldVal, String newVal){
         if(newVal != null){
@@ -109,9 +258,15 @@ public class EditorController {
             themeToggleBtn.setText("Light");
         }
 
-        // - AI GENERATED -------------------------------------
+        refreshWebView();
+    }
+
+    // - AI GENERATED -------------------------------------
+    private void refreshWebView(){
+        boolean isLightMode = themeToggleBtn.isSelected();
         // 2. السطرين دول هما الحل: تغيير لون مساحة الكتابة الداخلية (HTML)
         WebView webView = (WebView) htmlEditor.lookup("WebView");
+        IO.println(isLightMode);
         if (webView != null) {
             if (isLightMode) {
                 // تحويل مساحة الكتابة للوضع الفاتح
@@ -127,7 +282,6 @@ public class EditorController {
                 );
             }
         }
-        // -------------------------------------------
     }
 
     // - AI GENERATED -------------------------------------

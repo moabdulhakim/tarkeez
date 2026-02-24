@@ -4,6 +4,9 @@ module com.example.tarkeez {
     requires javafx.web;
     requires javafx.media;
 
+    requires org.jsoup;
+    requires flying.saucer.pdf;
+
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
 
