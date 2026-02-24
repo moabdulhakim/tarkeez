@@ -1,0 +1,292 @@
+/* =========================================
+   1. GLOBAL VARIABLES (Dynamic Themes)
+   ========================================= */
+.root-pane {
+    /* ألوان الـ Dark Mode الافتراضية */
+    -fx-background-color: #161925;
+    -base-color: #1e2233;
+    -topbar-bg: #11141d;
+    -element-bg: #2a2e40;
+    -element-hover: #3b4055;
+    -text-main: #f0f0f0;
+    -text-muted: #8b92a5;
+
+    /* ألوان ثابتة لا تتغير */
+    -accent-orange: linear-gradient(to right, #ff8c00, #ff5722);
+    -accent-blue: #00a8ff;
+    -break-color: #f2ff23;
+    -border-color: #2a2e40;
+}
+
+/* =========================================
+   2. TYPOGRAPHY & TOP BAR
+   ========================================= */
+.app-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-main;
+}
+
+.top-bar {
+    -fx-background-color: -topbar-bg;
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 1px;
+}
+
+.icon-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+.icon-btn:hover {
+    -fx-text-fill: -text-main;
+}
+
+/* =========================================
+   3. EDITOR SECTION (HTMLEditor)
+   ========================================= */
+.editor-container {
+    -fx-background-color: -base-color;
+    -fx-background-radius: 10px;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 10px;
+}
+
+.toolbar {
+    -fx-border-color: transparent transparent -border-color transparent;
+    -fx-border-width: 1px;
+}
+
+.toolbar-btn {
+    -fx-background-color: -element-bg;
+    -fx-text-fill: -text-main;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+.toolbar-btn:hover {
+    -fx-background-color: -element-hover;
+}
+
+/* تنسيق Toolbars المدمجة في HTMLEditor لتتفاعل مع الثيم */
+.html-editor {
+    -fx-background-color: transparent;
+}
+.html-editor .top-toolbar, .html-editor .bottom-toolbar {
+    -fx-background-color: -base-color;
+    -fx-border-color: transparent transparent -border-color transparent;
+}
+.html-editor .button, .html-editor .toggle-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+.html-editor .button:hover, .html-editor .toggle-button:hover {
+    -fx-background-color: -element-hover;
+}
+.html-editor .scroll-pane, .html-editor .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* تنسيق القوائم المنسدلة (ComboBoxes) داخل الـ HTMLEditor */
+.html-editor .combo-box {
+    -fx-background-color: -element-bg;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+.html-editor .combo-box:hover {
+    -fx-background-color: -element-hover;
+}
+.html-editor .combo-box .list-cell {
+    -fx-text-fill: -text-main;
+    -fx-background-color: transparent;
+}
+.html-editor .combo-box .arrow {
+    -fx-background-color: -text-muted;
+}
+.html-editor .combo-box:hover .arrow {
+    -fx-background-color: -text-main;
+}
+.html-editor .combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+.html-editor .combo-box-popup .list-view {
+    -fx-background-color: -base-color;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1px;
+}
+.html-editor .combo-box-popup .list-cell {
+    -fx-text-fill: -text-main;
+    -fx-background-color: transparent;
+    -fx-padding: 5 10 5 10;
+}
+.html-editor .combo-box-popup .list-cell:filled:hover,
+.html-editor .combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: -accent-blue;
+    -fx-text-fill: white;
+}
+
+/* حل مشكلة منتقي الألوان (Color Pickers) ليتفاعل مع الثيم */
+.html-editor .color-picker {
+    -fx-background-color: -element-bg;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+.html-editor .color-picker:hover {
+    -fx-background-color: -element-hover;
+}
+.html-editor .color-picker .label {
+    -fx-text-fill: -text-main;
+}
+.html-editor .color-picker .color-picker-label .text {
+    -fx-fill: -text-main;
+}
+.html-editor .color-picker .arrow {
+    -fx-background-color: -text-muted;
+}
+.html-editor .color-picker:hover .arrow {
+    -fx-background-color: -text-main;
+}
+/* النافذة المنبثقة للألوان */
+.color-palette {
+    -fx-background-color: -base-color;
+    -fx-border-color: -border-color;
+}
+
+/* =========================================
+   4. CARDS (Timer & Audio)
+   ========================================= */
+.card {
+    -fx-background-color: -base-color;
+    -fx-background-radius: 10px;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 10px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 5);
+}
+
+.card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-muted;
+}
+
+/* =========================================
+   5. POMODORO TIMER
+   ========================================= */
+.timer-card.break{
+    -fx-effect: dropshadow(three-pass-box, rgba(242, 255, 35, 0.6), 15, 0, 0, 0);
+}
+
+.timer-text {
+    -fx-font-size: 45px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-main;
+}
+
+.timer-track {
+    -fx-fill: transparent;
+    -fx-stroke: #2a2e40;
+    -fx-stroke-width: 12px;
+}
+
+.timer-progress {
+    -fx-fill: transparent;
+    -fx-stroke: -accent-blue;
+    -fx-stroke-width: 12px;
+    -fx-stroke-dash-array: 100 50;
+    -fx-stroke-line-cap: round;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 168, 255, 0.6), 15, 0, 0, 0);
+}
+
+.timer-progress.break{
+    -fx-stroke: -break-color;
+}
+
+.primary-btn {
+    -fx-background-color: -accent-orange;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px;
+    -fx-cursor: hand;
+}
+.primary-btn.paused{
+    -fx-background-color: #2f5d8c;
+}
+
+.primary-btn:hover {
+    -fx-opacity: 0.9;
+}
+
+.secondary-btn {
+    -fx-background-color: -element-bg;
+    -fx-text-fill: -text-main;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px;
+    -fx-cursor: hand;
+}
+.secondary-btn:hover {
+    -fx-background-color: -element-hover;
+}
+
+.session-text {
+    -fx-text-fill: -text-muted;
+    -fx-font-size: 12px;
+}
+
+/* =========================================
+   6. AUDIO PLAYER
+   ========================================= */
+.audio-combo {
+    -fx-background-color: -element-bg;
+    -fx-text-fill: -text-main;
+    -fx-background-radius: 5px;
+}
+
+.waveform-bar {
+    -fx-background-color: -element-hover;
+    -fx-background-radius: 2px;
+}
+.waveform-bar-active {
+    -fx-background-color: -accent-blue;
+    -fx-background-radius: 2px;
+}
+
+.media-btn-play {
+    -fx-background-color: -element-bg;
+    -fx-text-fill: -text-main;
+    -fx-font-size: 20px;
+    -fx-background-radius: 50%;
+    -fx-min-width: 45px;
+    -fx-min-height: 45px;
+    -fx-cursor: hand;
+}
+.media-btn-play:hover {
+    -fx-background-color: -element-hover;
+}
+
+/* =========================================
+   7. LIGHT MODE OVERRIDES
+   ========================================= */
+/* بمجرد إضافة هذا الكلاس في الجافا، كل المتغيرات ستتغير فوراً */
+.light-mode {
+    -fx-background-color: #f4f5f7;
+    -base-color: #ffffff;
+    -topbar-bg: #e4e5f1;
+    -element-bg: #f1f2f6;
+    -element-hover: #dfe6e9;
+    -text-main: #2d3436;
+    -text-muted: #636e72;
+    -border-color: #dfe6e9;
+}
+
+/* التعديل الوحيد المتبقي الذي لا يعتمد على المتغيرات */
+.light-mode .timer-track {
+    -fx-stroke: #dfe6e9;
+}
