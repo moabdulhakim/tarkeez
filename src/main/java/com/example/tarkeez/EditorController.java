@@ -2,10 +2,14 @@ package com.example.tarkeez;
 
 import com.example.tarkeez.models.AudioPlayer;
 import com.example.tarkeez.models.Timer;
+import com.example.tarkeez.models.TimerStateChangeEvent;
 import com.example.tarkeez.utils.Toast;
 import com.example.tarkeez.utils.ToastStatus;
 import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -101,8 +105,70 @@ public class EditorController {
             handleSaveAs();
         });
 
-        timer = new Timer(timerLabel, startBtn, timerProgressCircle, timerCard, sessionLabel);
+        // ----------------------------------
+        timer = new Timer();
+
+        RotateTransition rt = new RotateTransition(Duration.millis(10000), timerProgressCircle);
+        rt.setByAngle(360);
+        rt.setCycleCount(Animation.INDEFINITE);
+        rt.setInterpolator(Interpolator.LINEAR);
+
         startBtn.setOnAction(event-> timer.startPause());
+
+        timer.setOnTickAction((timeFormatted)->{
+            Platform.runLater(()-> {
+                timerLabel.setText(timeFormatted);
+            });
+        });
+
+        timer.setOnChangeAction(((isRunning, isBreak, sessionsCount, eventType ) -> {
+            String btnText = isRunning? "Reset":"Start" ;
+
+            Platform.runLater(()->{
+                startBtn.setText(btnText);
+
+                if(isRunning){
+                    if(!startBtn.getStyleClass().contains("paused"))
+                        startBtn.getStyleClass().add("paused");
+                    rt.play();
+                }else{
+                    startBtn.getStyleClass().remove("paused");
+                    rt.stop();
+                }
+
+                sessionLabel.setText("Session " + (sessionsCount+1));
+                if(isBreak){
+                    timerCard.getStyleClass().add("break");
+                    timerProgressCircle.getStyleClass().add("break");
+                    rt.setRate(-1);
+                    rt.play();
+                }else{
+                    timerCard.getStyleClass().remove("break");
+                    timerProgressCircle.getStyleClass().remove("break");
+                    rt.setRate(1);
+                }
+            });
+
+            Platform.runLater(()->{
+                switch (eventType){
+                    case TimerStateChangeEvent.START_SESSION:
+                        showToast("Session Started!", ToastStatus.INFO);
+                        break;
+                    case TimerStateChangeEvent.RESET:
+                        showToast("Timer reset!", ToastStatus.INFO);
+                        break;
+                    case TimerStateChangeEvent.BREAK_TIME:
+                        showToast("Alhamdulillah , Your work time completed!", ToastStatus.SUCCESS);
+                        break;
+                    case TimerStateChangeEvent.SESSION_INCREMENT:
+                        String sessions = sessionsCount == 1? "one session":(sessionsCount + " sessions");
+                        showToast(("Alhamdulillah , You have completed " + sessions + ", Keep going!"), ToastStatus.SUCCESS);
+                        break;
+                }
+            });
+        }));
+        timer.updateLabel();
+        //  ------------------------------------
 
         audioPlayer = new AudioPlayer();
         setupWaveformAnimations();
@@ -188,54 +254,6 @@ public class EditorController {
             showToast("Your note has not be saved!", ToastStatus.INFO);
         }
     }
-
-    /*
-    private void handleExport(){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export as PDF");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf"));
-
-        fileChooser.setInitialFileName("Untitled.pdf");
-
-        java.io.File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
-
-        // - AI GENERATED ----------------------------------------
-        if (file != null) {
-            if (!file.getName().toLowerCase().endsWith(".pdf")) {
-                file = new File(file.getAbsolutePath() + ".pdf");
-            }
-
-            try {
-                String htmlContent = htmlEditor.getHtmlText();
-
-                Document document = Jsoup.parse(htmlContent);
-                document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
-                document.outputSettings().escapeMode(Entities.EscapeMode.xhtml);
-                document.outputSettings().charset("UTF-8"); // دعم الحروف الخاصة
-
-                document.select("[contenteditable]").removeAttr("contenteditable");
-
-                String xhtml = document.html();
-
-                try (OutputStream os = new FileOutputStream(file)) {
-                    ITextRenderer renderer = new ITextRenderer();
-
-                    renderer.setDocumentFromString(xhtml);
-                    renderer.layout();
-                    renderer.createPDF(os);
-
-                    os.flush();
-                    System.out.println("PDF exported successfully to: " + file.getAbsolutePath());
-                }
-
-            } catch (Exception e) {
-                System.err.println("Error exporting to PDF:");
-                e.printStackTrace(); // لو حصل أي مشكلة هتظهر هنا بدل ما يبوظ في صمت
-            }
-        }
-        // ---------------------------------------------------------
-    }
-     */
 
     private void handleSelectAudio(ObservableValue<?extends  String> obs, String oldVal, String newVal){
         if(newVal != null){
@@ -342,4 +360,52 @@ public class EditorController {
             }
         }
     }
+
+    /*
+    private void handleExport(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export as PDF");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf"));
+
+        fileChooser.setInitialFileName("Untitled.pdf");
+
+        java.io.File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
+
+        // - AI GENERATED ----------------------------------------
+        if (file != null) {
+            if (!file.getName().toLowerCase().endsWith(".pdf")) {
+                file = new File(file.getAbsolutePath() + ".pdf");
+            }
+
+            try {
+                String htmlContent = htmlEditor.getHtmlText();
+
+                Document document = Jsoup.parse(htmlContent);
+                document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
+                document.outputSettings().escapeMode(Entities.EscapeMode.xhtml);
+                document.outputSettings().charset("UTF-8"); // دعم الحروف الخاصة
+
+                document.select("[contenteditable]").removeAttr("contenteditable");
+
+                String xhtml = document.html();
+
+                try (OutputStream os = new FileOutputStream(file)) {
+                    ITextRenderer renderer = new ITextRenderer();
+
+                    renderer.setDocumentFromString(xhtml);
+                    renderer.layout();
+                    renderer.createPDF(os);
+
+                    os.flush();
+                    System.out.println("PDF exported successfully to: " + file.getAbsolutePath());
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error exporting to PDF:");
+                e.printStackTrace(); // لو حصل أي مشكلة هتظهر هنا بدل ما يبوظ في صمت
+            }
+        }
+        // ---------------------------------------------------------
+    }
+     */
 }

@@ -36,16 +36,21 @@ public class Toast {
         fadeIn.setToValue(1.0);
         fadeIn.play();
 
-        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), label);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished((e2)-> {
+            popup.hide();
+        });
+
+        PauseTransition delay = new PauseTransition(Duration.seconds(5));
         delay.setOnFinished((e)->{
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), label);
-            fadeOut.setFromValue(1.0);
-            fadeOut.setToValue(0.0);
-            fadeOut.setOnFinished((e2)-> {
-                popup.hide();
-            });
             fadeOut.play();
         });
         delay.play();
+
+        label.setOnMouseClicked((e)->{
+            fadeOut.play();
+        });
     }
 }

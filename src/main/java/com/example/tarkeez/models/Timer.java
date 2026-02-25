@@ -8,41 +8,32 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.util.Duration;
 
-enum Status {WORK, BREAK};
+import java.util.function.Consumer;
 
 public class Timer {
-    public static int DEFAULT_DURATION = 5; //25 * 60;
-    public static int DEFAULT_BREAK_DURATION = 3; // 5 * 60;
-
-    private Label timerLabel;
-    private Button startBtn;
-    private Circle timerProgressCircle;
-    private VBox timerCard;
-    private Label sessionLabel;
-
-    private RotateTransition rt;
+    public static int DEFAULT_DURATION = 25 * 60;
+    public static int DEFAULT_BREAK_DURATION = 5 * 60;
 
     private Thread timerThread;
     private int timeRemainingInSeconds = DEFAULT_DURATION;
-    private Status currentStatus = Status.WORK;
+    private boolean isBreak = false;
     private boolean isRunning = false;
     private int sessionsCount = 0;
 
-    public Timer(Label timerLabel, Button startBtn, Circle timerProgressCircle, VBox timerCard, Label sessionLabel){
-        this.timerLabel = timerLabel;
-        this.startBtn = startBtn;
-        this.timerProgressCircle = timerProgressCircle;
-        this.timerCard = timerCard;
-        this.sessionLabel = sessionLabel;
+    private Consumer<String> onTickAction;
+    private StateChangeListener onChangeAction;
 
-        updateLabel();
+    public interface StateChangeListener {
+        void onChange(boolean isRunning, boolean isBreak, int sessionsCount, TimerStateChangeEvent eventType);
+    }
 
-        rt = new RotateTransition(Duration.millis(10000), timerProgressCircle);
-        rt.setByAngle(360);
-        rt.setCycleCount(Animation.INDEFINITE);
-        rt.setInterpolator(Interpolator.LINEAR);
+    public void setOnTickAction(Consumer<String> onTickAction){
+        this.onTickAction = onTickAction;
+    }
+
+    public void setOnChangeAction(StateChangeListener onChangeAction){
+        this.onChangeAction = onChangeAction;
     }
 
     public void startPause(){
@@ -52,7 +43,8 @@ public class Timer {
         }
 
         isRunning = true;
-        updateStartBtn();
+        if(onChangeAction != null)
+            onChangeAction.onChange(isRunning, isBreak, sessionsCount, TimerStateChangeEvent.START_SESSION);
 
         timerThread = new Thread(()->{
             while(timeRemainingInSeconds > 0 && isRunning){
@@ -76,14 +68,12 @@ public class Timer {
 
     public void reset(){
         isRunning = false;
+        isBreak = false;
         timeRemainingInSeconds = DEFAULT_DURATION;
 
         updateLabel();
-        updateStartBtn();
 
-        sessionsCount--;
-        currentStatus = Status.BREAK;
-        toggleStatus();
+        onChangeAction.onChange(isRunning, isBreak, sessionsCount, TimerStateChangeEvent.RESET);
 
         if(timerThread != null){
             timerThread.interrupt();
@@ -91,29 +81,18 @@ public class Timer {
     }
 
     public void toggleStatus(){
-        if(currentStatus == Status.WORK){
-            currentStatus = Status.BREAK;
+        TimerStateChangeEvent eventType = TimerStateChangeEvent.BREAK_TIME;
+        if(!isBreak){
+            isBreak = true;
             timeRemainingInSeconds = DEFAULT_BREAK_DURATION;
-            rt.setRate(-1);
-            rt.play();
         }else{
-            currentStatus = Status.WORK;
+            isBreak = false;
             timeRemainingInSeconds = DEFAULT_DURATION;
             sessionsCount++;
-            rt.setRate(1);
-            rt.play();
+            eventType = TimerStateChangeEvent.SESSION_INCREMENT;
         }
 
-        Platform.runLater(()->{
-            sessionLabel.setText("Session " + (sessionsCount+1));
-            if(currentStatus == Status.BREAK){
-                timerCard.getStyleClass().add("break");
-                timerProgressCircle.getStyleClass().add("break");
-            }else{
-                timerCard.getStyleClass().remove("break");
-                timerProgressCircle.getStyleClass().remove("break");
-            }
-        });
+        onChangeAction.onChange(isRunning, isBreak, sessionsCount, eventType);
     }
 
     public void updateLabel(){
@@ -121,23 +100,7 @@ public class Timer {
         int seconds = timeRemainingInSeconds % 60;
         String timeFormatted = String.format("%02d:%02d", minutes,seconds);
 
-        Platform.runLater(()-> {
-            timerLabel.setText(timeFormatted);
-        });
-    }
-
-    public void updateStartBtn(){
-        String btnText = isRunning? "Reset":"Start" ;
-        startBtn.setText(btnText);
-
-        Platform.runLater(()-> {
-            if(isRunning){
-                startBtn.getStyleClass().add("paused");
-                rt.play();
-            }else{
-                startBtn.getStyleClass().remove("paused");
-                rt.stop();
-            }
-        });
+        if(onTickAction != null)
+            onTickAction.accept(timeFormatted);
     }
 }
