@@ -19,11 +19,11 @@ jobs:
       - name: 1. Download Code from Repository
         uses: actions/checkout@v4
 
-      - name: 2. Setup Java 21 Environment
+      - name: 2. Setup Java 25 Environment
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           cache: 'maven'
 
       - name: 3. Build the Fat JAR with Maven
