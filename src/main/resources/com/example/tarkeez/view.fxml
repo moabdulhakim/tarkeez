@@ -24,7 +24,7 @@
                 <Region HBox.hgrow="ALWAYS" />
 
                 <ToggleButton fx:id="themeToggleBtn" styleClass="icon-btn" text="Light" />
-                <Button styleClass="icon-btn" text="⚙">
+                <Button onAction="#openSettings" styleClass="icon-btn" style="-fx-font-size: 26px;" text="⚙">
                     <HBox.margin>
                         <Insets left="10.0" />
                     </HBox.margin>
@@ -91,7 +91,7 @@
                     <children>
                         <Label styleClass="card-title" text="🎵 Audio Player" />
 
-                        <ComboBox fx:id="audioTrackSelector" maxWidth="1.7976931348623157E308" promptText="Select Ambient Sound" styleClass="audio-combo" />
+                        <ComboBox fx:id="audioTrackSelector" maxWidth="1.7976931348623157E308" promptText="Select audio track" styleClass="audio-combo" />
 
                         <HBox fx:id="waveformContainer" alignment="CENTER" prefHeight="30.0" spacing="2.0">
                             <children>

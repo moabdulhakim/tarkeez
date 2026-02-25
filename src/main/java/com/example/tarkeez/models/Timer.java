@@ -1,22 +1,15 @@
 package com.example.tarkeez.models;
-
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.RotateTransition;
-import javafx.application.Platform;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
-
 import java.util.function.Consumer;
 
 public class Timer {
     public static int DEFAULT_DURATION = 25 * 60;
     public static int DEFAULT_BREAK_DURATION = 5 * 60;
 
+    public int workDuration = DEFAULT_DURATION;
+    public int breakDuration = DEFAULT_BREAK_DURATION;
+
     private Thread timerThread;
-    private int timeRemainingInSeconds = DEFAULT_DURATION;
+    private int timeRemainingInSeconds = workDuration;
     private boolean isBreak = false;
     private boolean isRunning = false;
     private int sessionsCount = 0;
@@ -34,6 +27,25 @@ public class Timer {
 
     public void setOnChangeAction(StateChangeListener onChangeAction){
         this.onChangeAction = onChangeAction;
+    }
+
+    public void setWorkDuration(int minutes){
+        this.workDuration = minutes * 60;
+
+        if(!isRunning && !isBreak){
+            this.timeRemainingInSeconds = this.workDuration;
+            updateLabel();
+        }
+    }
+
+    public void setBreakDuration(int minutes){
+        this.breakDuration = minutes * 60;
+
+        if(!isRunning && isBreak){
+            this.timeRemainingInSeconds = this.breakDuration;
+            updateLabel();
+        }
+
     }
 
     public void startPause(){
@@ -69,7 +81,7 @@ public class Timer {
     public void reset(){
         isRunning = false;
         isBreak = false;
-        timeRemainingInSeconds = DEFAULT_DURATION;
+        timeRemainingInSeconds = workDuration;
 
         updateLabel();
 
@@ -84,10 +96,10 @@ public class Timer {
         TimerStateChangeEvent eventType = TimerStateChangeEvent.BREAK_TIME;
         if(!isBreak){
             isBreak = true;
-            timeRemainingInSeconds = DEFAULT_BREAK_DURATION;
+            timeRemainingInSeconds = breakDuration;
         }else{
             isBreak = false;
-            timeRemainingInSeconds = DEFAULT_DURATION;
+            timeRemainingInSeconds = workDuration;
             sessionsCount++;
             eventType = TimerStateChangeEvent.SESSION_INCREMENT;
         }

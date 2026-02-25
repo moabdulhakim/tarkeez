@@ -13,7 +13,10 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -23,6 +26,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -210,6 +214,7 @@ public class EditorController {
                 htmlEditor.setHtmlText(content.toString());
                 currentFile = file;
                 showToast((file.getName() + " loaded successfully!"), ToastStatus.SUCCESS);
+
             }catch(java.io.FileNotFoundException e){
                 showToast("Something went wrong while loading your note!", ToastStatus.ERROR);
                 e.printStackTrace();
@@ -252,6 +257,33 @@ public class EditorController {
             saveToFile(file);
         }else{
             showToast("Your note has not be saved!", ToastStatus.INFO);
+        }
+    }
+
+    @FXML
+    private void openSettings(){
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("settings.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+
+            SettingsController settingsController = loader.getController();
+            settingsController.setTimerModel(this.timer);
+
+            Stage settingsStage = new Stage();
+            settingsStage.setTitle("Tarkeez: Settings");
+
+            settingsStage.initModality(Modality.APPLICATION_MODAL);
+            settingsStage.setResizable(false);
+
+            if(themeToggleBtn.isSelected()){
+                root.getStyleClass().add("light-mode");
+            }
+
+            settingsStage.setScene(scene);
+            settingsStage.showAndWait();
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
