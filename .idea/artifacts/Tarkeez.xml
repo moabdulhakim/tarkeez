@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="Tarkeez">
+    <output-path>$PROJECT_DIR$/out/artifacts/Tarkeez</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.example.tarkeez.TarkeezApp" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="Tarkeez" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="tarkeez.jar">
+        <element id="module-output" name="tarkeez" />
+      </element>
+    </root>
+  </artifact>
+</component>
