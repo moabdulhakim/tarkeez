@@ -291,6 +291,39 @@
 }
 
 /* =========================================
+   8. TOAST NOTIFICATIONS
+   ========================================= */
+.toast-pill {
+    -fx-text-fill: -text-main;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 25px; /* Makes it a pill shape */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 25px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 4);
+}
+
+.toast-pill.success{
+    -fx-background-color: #2bfb3b;
+}
+.toast-pill.info{
+   -fx-background-color: #e9fb2b;
+}
+.toast-pill.error{
+    -fx-background-color: #fb2f2b;
+}
+
+/* Make sure the toast looks good in Light Mode too */
+.light-mode .toast-pill {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #2d3436;
+    -fx-border-color: #dfe6e9;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);
+}
+
+/* =========================================
    7. LIGHT MODE OVERRIDES
    ========================================= */
 /* بمجرد إضافة هذا الكلاس في الجافا، كل المتغيرات ستتغير فوراً */

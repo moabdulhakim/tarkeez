@@ -2,6 +2,8 @@ package com.example.tarkeez;
 
 import com.example.tarkeez.models.AudioPlayer;
 import com.example.tarkeez.models.Timer;
+import com.example.tarkeez.utils.Toast;
+import com.example.tarkeez.utils.ToastStatus;
 import javafx.animation.Animation;
 import javafx.animation.ScaleTransition;
 import javafx.beans.value.ObservableValue;
@@ -17,15 +19,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Entities;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,14 +112,20 @@ public class EditorController {
         audioVolumeSlider.valueProperty().addListener(this::handleVolumeChange);
     }
 
+    private void showToast(String msg, ToastStatus ts){
+        Stage stage = (Stage) rootPane.getScene().getWindow();
+        Toast.show(msg, ts, stage);
+    }
+
     private void handleNew(){
         String innerHtmlDark = "<html><body style='background-color: #1e2233; color: #f0f0f0;'><p>Start Writing Your Thoughts...</p></body></html>";
         String innerHtmlLight = "<html><body><p>Start Writing Your Thoughts...</p></body></html>";
 
         boolean isLightMode = themeToggleBtn.isSelected();
-
         htmlEditor.setHtmlText(isLightMode? innerHtmlLight:innerHtmlDark);
         currentFile = null;
+
+        showToast("New note has been loaded successfully!", ToastStatus.SUCCESS);
     }
 
     private void handleLoadFile(){
@@ -141,9 +143,13 @@ public class EditorController {
                 }
                 htmlEditor.setHtmlText(content.toString());
                 currentFile = file;
+                showToast((file.getName() + " loaded successfully!"), ToastStatus.SUCCESS);
             }catch(java.io.FileNotFoundException e){
+                showToast("Something went wrong while loading your note!", ToastStatus.ERROR);
                 e.printStackTrace();
             }
+        }else{
+            showToast("No note has been loaded!", ToastStatus.INFO);
         }
     }
 
@@ -152,7 +158,9 @@ public class EditorController {
             writer.println(htmlEditor.getHtmlText());
             currentFile = file;
             IO.println("Saved to: " + file.getAbsolutePath());
+            showToast(("Your Note: " + file.getName() + " saved successfully!"), ToastStatus.SUCCESS);
         }catch (java.io.IOException e){
+            showToast("Something went wrong while saving your note!", ToastStatus.ERROR);
             e.printStackTrace();
         }
     }
@@ -176,6 +184,8 @@ public class EditorController {
 
         if(file != null){
             saveToFile(file);
+        }else{
+            showToast("Your note has not be saved!", ToastStatus.INFO);
         }
     }
 
@@ -237,6 +247,7 @@ public class EditorController {
     }
 
     private void handleAudioPlayPause(ActionEvent e){
+        if(!audioPlayer.isThereMediaPlayer()) showToast("Please Choose an audio track to play.", ToastStatus.INFO);
         audioPlayer.togglePlayPause();
         boolean isPlaying = audioPlayer.isPlaying();
 
@@ -253,9 +264,11 @@ public class EditorController {
         if(isLightMode){
             rootPane.getStyleClass().add("light-mode");
             themeToggleBtn.setText("Dark");
+            showToast("Light mode applied!", ToastStatus.SUCCESS);
         } else {
             rootPane.getStyleClass().remove("light-mode");
             themeToggleBtn.setText("Light");
+            showToast("Dark mode applied!", ToastStatus.SUCCESS);
         }
 
         refreshWebView();

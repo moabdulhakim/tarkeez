@@ -53,4 +53,8 @@ public class AudioPlayer {
     public boolean isPlaying() {
         return  isPlaying;
     }
+
+    public boolean isThereMediaPlayer(){
+        return mediaPlayer != null;
+    }
 }
