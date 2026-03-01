@@ -3,6 +3,7 @@ package com.example.tarkeez;
 import com.example.tarkeez.models.AudioPlayer;
 import com.example.tarkeez.models.Timer;
 import com.example.tarkeez.models.TimerStateChangeEvent;
+import com.example.tarkeez.services.FileManager;
 import com.example.tarkeez.utils.Toast;
 import com.example.tarkeez.utils.ToastStatus;
 import javafx.animation.Animation;
@@ -25,31 +26,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditorController {
+public class TarkeezController {
     private Timer timer;
     private AudioPlayer audioPlayer;
+    private FileManager fileManager;
 
-    private java.io.File currentFile = null;
-
-    @FXML
-    private Button newBtn;
-
-    @FXML
-    private Button loadBtn;
-
-    @FXML
-    private Button saveBtn;
-
-    @FXML
-    private Button saveAsBtn;
+    private RotateTransition rt;
 
     @FXML
     private HTMLEditor htmlEditor;
@@ -91,94 +82,26 @@ public class EditorController {
 
     @FXML
     public void initialize(){
-        themeToggleBtn.setOnAction(this::toggleTheme);
-
-        newBtn.setOnAction(e->{
-            handleNew();
-        });
-
-        loadBtn.setOnAction(e->{
-            handleLoadFile();
-        });
-
-        saveBtn.setOnAction(e->{
-            handleSave();
-        });
-
-        saveAsBtn.setOnAction(e->{
-            handleSaveAs();
-        });
-
+        fileManager = new FileManager();
         // ----------------------------------
+
         timer = new Timer();
 
-        RotateTransition rt = new RotateTransition(Duration.millis(10000), timerProgressCircle);
+        rt = new RotateTransition(Duration.millis(10000), timerProgressCircle);
         rt.setByAngle(360);
         rt.setCycleCount(Animation.INDEFINITE);
         rt.setInterpolator(Interpolator.LINEAR);
 
         startBtn.setOnAction(event-> timer.startPause());
 
-        timer.setOnTickAction((timeFormatted)->{
-            Platform.runLater(()-> {
-                timerLabel.setText(timeFormatted);
-            });
-        });
-
-        timer.setOnChangeAction(((isRunning, isBreak, sessionsCount, eventType ) -> {
-            String btnText = isRunning? "Reset":"Start" ;
-
-            Platform.runLater(()->{
-                startBtn.setText(btnText);
-
-                if(isRunning){
-                    if(!startBtn.getStyleClass().contains("paused"))
-                        startBtn.getStyleClass().add("paused");
-                    rt.play();
-                }else{
-                    startBtn.getStyleClass().remove("paused");
-                    rt.stop();
-                }
-
-                sessionLabel.setText("Session " + (sessionsCount+1));
-                if(isBreak){
-                    timerCard.getStyleClass().add("break");
-                    timerProgressCircle.getStyleClass().add("break");
-                    rt.setRate(-1);
-                    rt.play();
-                }else{
-                    timerCard.getStyleClass().remove("break");
-                    timerProgressCircle.getStyleClass().remove("break");
-                    rt.setRate(1);
-                }
-            });
-
-            Platform.runLater(()->{
-                switch (eventType){
-                    case TimerStateChangeEvent.START_SESSION:
-                        showToast("Session Started!", ToastStatus.INFO);
-                        break;
-                    case TimerStateChangeEvent.RESET:
-                        showToast("Timer reset!", ToastStatus.INFO);
-                        break;
-                    case TimerStateChangeEvent.BREAK_TIME:
-                        showToast("Alhamdulillah , Your work time completed!", ToastStatus.SUCCESS);
-                        break;
-                    case TimerStateChangeEvent.SESSION_INCREMENT:
-                        String sessions = sessionsCount == 1? "one session":(sessionsCount + " sessions");
-                        showToast(("Alhamdulillah , You have completed " + sessions + ", Keep going!"), ToastStatus.SUCCESS);
-                        break;
-                }
-            });
-        }));
+        timer.setOnTickAction(this::timerTickAction);
+        timer.setOnChangeAction(this::timerOnChangeAction);
         timer.updateLabel();
         //  ------------------------------------
 
         audioPlayer = new AudioPlayer();
         setupWaveformAnimations();
         audioTrackSelector.getItems().addAll("Rain", "Forest", "Ocean");
-        audioTrackSelector.getSelectionModel().selectedItemProperty().addListener(this::handleSelectAudio);
-        playButton.setOnAction(this::handleAudioPlayPause);
         audioVolumeSlider.valueProperty().addListener(this::handleVolumeChange);
     }
 
@@ -187,76 +110,118 @@ public class EditorController {
         Toast.show(msg, ts, stage);
     }
 
+    private void timerTickAction(String timeFormatted){
+        Platform.runLater(()-> {
+            timerLabel.setText(timeFormatted);
+        });
+    }
+    private void timerOnChangeAction(boolean isRunning,boolean isBreak,int sessionsCount,TimerStateChangeEvent eventType ) {
+        String btnText = isRunning? "Reset":"Start" ;
+
+        Platform.runLater(()->{
+            startBtn.setText(btnText);
+
+            if(isRunning){
+                if(!startBtn.getStyleClass().contains("paused"))
+                    startBtn.getStyleClass().add("paused");
+                rt.play();
+            }else{
+                startBtn.getStyleClass().remove("paused");
+                rt.stop();
+            }
+
+            sessionLabel.setText("Session " + (sessionsCount+1));
+            if(isBreak){
+                timerCard.getStyleClass().add("break");
+                timerProgressCircle.getStyleClass().add("break");
+                rt.setRate(-1);
+                rt.play();
+            }else{
+                timerCard.getStyleClass().remove("break");
+                timerProgressCircle.getStyleClass().remove("break");
+                rt.setRate(1);
+            }
+        });
+
+        Platform.runLater(()->{
+            switch (eventType){
+                case TimerStateChangeEvent.START_SESSION:
+                    showToast("Session Started!", ToastStatus.INFO);
+                    break;
+                case TimerStateChangeEvent.RESET:
+                    showToast("Timer reset!", ToastStatus.INFO);
+                    break;
+                case TimerStateChangeEvent.BREAK_TIME:
+                    showToast("Alhamdulillah , Your work time completed!", ToastStatus.SUCCESS);
+                    break;
+                case TimerStateChangeEvent.SESSION_INCREMENT:
+                    String sessions = sessionsCount == 1? "one session":(sessionsCount + " sessions");
+                    showToast(("Alhamdulillah , You have completed " + sessions + ", Keep going!"), ToastStatus.SUCCESS);
+                    break;
+            }
+        });
+    }
+
+    @FXML
     private void handleNew(){
         String innerHtmlDark = "<html><body style='background-color: #1e2233; color: #f0f0f0;'><p>Start Writing Your Thoughts...</p></body></html>";
         String innerHtmlLight = "<html><body><p>Start Writing Your Thoughts...</p></body></html>";
 
         boolean isLightMode = themeToggleBtn.isSelected();
         htmlEditor.setHtmlText(isLightMode? innerHtmlLight:innerHtmlDark);
-        currentFile = null;
+        fileManager.resetCurrentFile();
 
         showToast("New note has been loaded successfully!", ToastStatus.SUCCESS);
     }
 
+    @FXML
     private void handleLoadFile(){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Note");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html"));
+        try{
+            String content = fileManager.loadFile(rootPane.getScene().getWindow());
 
-        java.io.File file = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
-
-        if(file != null){
-            try(java.util.Scanner scanner = new java.util.Scanner(file)){
-                StringBuilder content = new StringBuilder();
-                while(scanner.hasNextLine()){
-                    content.append(scanner.nextLine()).append('\n');
-                }
-                htmlEditor.setHtmlText(content.toString());
-                currentFile = file;
-                showToast((file.getName() + " loaded successfully!"), ToastStatus.SUCCESS);
-
-            }catch(java.io.FileNotFoundException e){
-                showToast("Something went wrong while loading your note!", ToastStatus.ERROR);
-                e.printStackTrace();
+            if(content != null){
+                htmlEditor.setHtmlText(content);
+                showToast((fileManager.getCurrentFile().getName() + " loaded successfully!"), ToastStatus.SUCCESS);
+            }else{
+                showToast("No note has been loaded!", ToastStatus.INFO);
             }
-        }else{
-            showToast("No note has been loaded!", ToastStatus.INFO);
+        }catch(FileNotFoundException e) {
+            showToast("Something went wrong while loading your note!", ToastStatus.ERROR);
+            e.printStackTrace();
         }
     }
 
-    private void saveToFile(java.io.File file){
-        try(java.io.PrintWriter writer = new java.io.PrintWriter(file) ){
-            writer.println(htmlEditor.getHtmlText());
-            currentFile = file;
-            IO.println("Saved to: " + file.getAbsolutePath());
-            showToast(("Your Note: " + file.getName() + " saved successfully!"), ToastStatus.SUCCESS);
+    @FXML
+    private void handleSave(){
+        try{
+            boolean success = fileManager.saveFile(htmlEditor.getHtmlText(), rootPane.getScene().getWindow());
+
+            if(success){
+                String fileName = fileManager.getCurrentFile().getName();
+                showToast(("Your Note: " + fileName + " saved successfully!"), ToastStatus.SUCCESS);
+            }else{
+                showToast("Your note has not been saved!", ToastStatus.INFO);
+            }
         }catch (java.io.IOException e){
             showToast("Something went wrong while saving your note!", ToastStatus.ERROR);
             e.printStackTrace();
         }
     }
 
-    private void handleSave(){
-        if(currentFile == null){
-            handleSaveAs();
-        }else{
-            saveToFile(currentFile);
-        }
-    }
-
+    @FXML
     private void handleSaveAs(){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Note");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML files (*.html)", "*.html"));
+        try{
+            boolean success = fileManager.saveAsFile(htmlEditor.getHtmlText(), rootPane.getScene().getWindow());
 
-        fileChooser.setInitialFileName("Untitled.html");
-
-        java.io.File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
-
-        if(file != null){
-            saveToFile(file);
-        }else{
-            showToast("Your note has not be saved!", ToastStatus.INFO);
+            if(success){
+                String fileName = fileManager.getCurrentFile().getName();
+                showToast(("Your Note: " + fileName + " saved successfully!"), ToastStatus.SUCCESS);
+            }else{
+                showToast("Your note has not been saved!", ToastStatus.INFO);
+            }
+        }catch(IOException e){
+            showToast("Something went wrong while saving your note!", ToastStatus.ERROR);
+            e.printStackTrace();
         }
     }
 
@@ -287,7 +252,10 @@ public class EditorController {
         }
     }
 
-    private void handleSelectAudio(ObservableValue<?extends  String> obs, String oldVal, String newVal){
+    @FXML
+    private void handleSelectAudio(){
+        String newVal = audioTrackSelector.getValue();
+
         if(newVal != null){
             audioPlayer.loadTrack(newVal);
             playButton.setText("▶");
@@ -296,7 +264,8 @@ public class EditorController {
         }
     }
 
-    private void handleAudioPlayPause(ActionEvent e){
+    @FXML
+    private void handleAudioPlayPause(){
         if(!audioPlayer.isThereMediaPlayer()) showToast("Please Choose an audio track to play.", ToastStatus.INFO);
         audioPlayer.togglePlayPause();
         boolean isPlaying = audioPlayer.isPlaying();
@@ -309,6 +278,7 @@ public class EditorController {
         audioPlayer.setVolume(newVal.doubleValue() / 100.0);
     }
 
+    @FXML
     private void toggleTheme(ActionEvent event){
         boolean isLightMode = themeToggleBtn.isSelected();
         if(isLightMode){
@@ -392,52 +362,4 @@ public class EditorController {
             }
         }
     }
-
-    /*
-    private void handleExport(){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export as PDF");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf"));
-
-        fileChooser.setInitialFileName("Untitled.pdf");
-
-        java.io.File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
-
-        // - AI GENERATED ----------------------------------------
-        if (file != null) {
-            if (!file.getName().toLowerCase().endsWith(".pdf")) {
-                file = new File(file.getAbsolutePath() + ".pdf");
-            }
-
-            try {
-                String htmlContent = htmlEditor.getHtmlText();
-
-                Document document = Jsoup.parse(htmlContent);
-                document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
-                document.outputSettings().escapeMode(Entities.EscapeMode.xhtml);
-                document.outputSettings().charset("UTF-8"); // دعم الحروف الخاصة
-
-                document.select("[contenteditable]").removeAttr("contenteditable");
-
-                String xhtml = document.html();
-
-                try (OutputStream os = new FileOutputStream(file)) {
-                    ITextRenderer renderer = new ITextRenderer();
-
-                    renderer.setDocumentFromString(xhtml);
-                    renderer.layout();
-                    renderer.createPDF(os);
-
-                    os.flush();
-                    System.out.println("PDF exported successfully to: " + file.getAbsolutePath());
-                }
-
-            } catch (Exception e) {
-                System.err.println("Error exporting to PDF:");
-                e.printStackTrace(); // لو حصل أي مشكلة هتظهر هنا بدل ما يبوظ في صمت
-            }
-        }
-        // ---------------------------------------------------------
-    }
-     */
 }

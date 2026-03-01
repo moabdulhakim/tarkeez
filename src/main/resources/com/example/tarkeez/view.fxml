@@ -14,7 +14,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.web.HTMLEditor?>
 
-<BorderPane fx:controller="com.example.tarkeez.EditorController" fx:id="rootPane" prefHeight="600.0" prefWidth="900.0" styleClass="root-pane" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:controller="com.example.tarkeez.TarkeezController" fx:id="rootPane" prefHeight="600.0" prefWidth="900.0" styleClass="root-pane" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
 
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="top-bar" BorderPane.alignment="CENTER">
@@ -23,7 +23,7 @@
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <ToggleButton fx:id="themeToggleBtn" styleClass="icon-btn" text="Light" />
+                <ToggleButton onAction="#toggleTheme" fx:id="themeToggleBtn" styleClass="icon-btn" text="Light" />
                 <Button onAction="#openSettings" styleClass="icon-btn" style="-fx-font-size: 26px;" text="⚙">
                     <HBox.margin>
                         <Insets left="10.0" />
@@ -41,10 +41,10 @@
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="toolbar">
                     <children>
-                        <Button fx:id="newBtn" styleClass="toolbar-btn" text="New" />
-                        <Button fx:id="loadBtn" styleClass="toolbar-btn" text="Load" />
-                        <Button fx:id="saveBtn" styleClass="toolbar-btn" text="Save" />
-                        <Button fx:id="saveAsBtn" styleClass="toolbar-btn" text="Save As" />
+                        <Button fx:id="newBtn" onAction="#handleNew" styleClass="toolbar-btn" text="New" />
+                        <Button fx:id="loadBtn" onAction="#handleLoadFile" styleClass="toolbar-btn" text="Load" />
+                        <Button fx:id="saveBtn" onAction="#handleSave" styleClass="toolbar-btn" text="Save" />
+                        <Button fx:id="saveAsBtn" onAction="#handleSaveAs" styleClass="toolbar-btn" text="Save As" />
 <!--                        <Button fx:id="exportBtn" styleClass="toolbar-btn" text="Export to PDF" />-->
                     </children>
                     <padding>
@@ -91,7 +91,7 @@
                     <children>
                         <Label styleClass="card-title" text="🎵 Audio Player" />
 
-                        <ComboBox fx:id="audioTrackSelector" maxWidth="1.7976931348623157E308" promptText="Select audio track" styleClass="audio-combo" />
+                        <ComboBox fx:id="audioTrackSelector" onAction="#handleSelectAudio" maxWidth="1.7976931348623157E308" promptText="Select audio track" styleClass="audio-combo" />
 
                         <HBox fx:id="waveformContainer" alignment="CENTER" prefHeight="30.0" spacing="2.0">
                             <children>
@@ -123,7 +123,7 @@
 
                         <HBox alignment="CENTER" spacing="15.0">
                             <children>
-                                <Button fx:id="playButton" styleClass="media-btn-play" text="▶" />
+                                <Button fx:id="playButton" onAction="#handleAudioPlayPause" styleClass="media-btn-play" text="▶" />
                             </children>
                         </HBox>
                         <Slider fx:id="audioVolumeSlider" value="50" majorTickUnit="5" />
